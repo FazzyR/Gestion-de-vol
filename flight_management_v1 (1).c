@@ -13,6 +13,7 @@ typedef struct Flight {
    int capacity;
    int bookedSeats;
    Passenger *reservations;
+   Passenger *waitlist;
    struct Flight *next;
 } Flight; 
 
@@ -72,6 +73,39 @@ void addReservation(Flight *head, char *name, int flightNumber) {
     flight->reservations = newPassenger;
     flight->bookedSeats++;
     printf("Reservation confirmed for %s on flight %d.\n", name, flightNumber);
+}
+
+void cancelReservation(Flight *head, char *name, int flightNumber) {
+    Flight *flight = findFlight(head, flightNumber);
+    if (!flight) {
+        printf("Flight %d not found.\n", flightNumber);
+        return;
+    }
+
+    Passenger *prev = NULL, *curr = flight->reservations;
+
+    while (curr) {
+        if (strcmp(curr->name, name) == 0) {
+            if (prev) prev->next = curr->next;
+            else flight->reservations = curr->next;
+            
+            free(curr);
+            flight->bookedSeats--;
+            printf("Reservation for %s on flight %d canceled.\n", name, flightNumber);
+            
+            if (flight->waitlist) {
+                Passenger *promoted = flight->waitlist;
+                flight->waitlist = promoted->next;
+                promoted->next = flight->reservations;
+                flight->reservations = promoted;
+                flight->bookedSeats++;
+                printf("%s has been moved from the waitlist to confirmed reservations.\n", promoted->name);
+            }
+            return;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
 }
 int main() {
     Flight *head = NULL;
