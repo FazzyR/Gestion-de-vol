@@ -1,12 +1,22 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+#define MAX_NAME_LENGTH 50
+
+typedef struct Passenger {
+    char name[MAX_NAME_LENGTH];
+    struct Passenger *next;
+} Passenger;
+
 typedef struct Flight {
    int flightNumber;
    int capacity;
    int bookedSeats;
+   Passenger *reservations;
    struct Flight *next;
-} Flight;
+} Flight; 
+
+
 
 Flight *addFlight(Flight *head, int flightNumber, int capacity) {
     Flight *newFlight = (Flight *)malloc(sizeof(Flight));
@@ -29,7 +39,40 @@ void freeAll(Flight *head) {
         free(temp);
     }
 }
+Flight *findFlight(Flight *head, int flightNumber) {
+    while (head) {
+        if (head->flightNumber == flightNumber) {
+            return head;
+        }
+        head = head->next;  
+    }
+    return NULL;  
+}
 
+void addReservation(Flight *head, char *name, int flightNumber) {
+    Flight *flight = findFlight(head, flightNumber);
+    if (!flight) {
+        printf("Flight %d not found.\n", flightNumber);
+        return;  
+    }
+
+    if (flight->bookedSeats >= flight->capacity) {
+        printf("Flight %d is full. Cannot add %s.\n", flightNumber, name);
+        return;
+    }
+
+    Passenger *newPassenger = (Passenger *)malloc(sizeof(Passenger));
+    if (!newPassenger) {
+        printf("Memory allocation failed for new passenger.\n");
+        return;  
+    }
+    strncpy(newPassenger->name, name, MAX_NAME_LENGTH - 1);
+    newPassenger->name[MAX_NAME_LENGTH - 1] = '\0';
+    newPassenger->next = flight->reservations;
+    flight->reservations = newPassenger;
+    flight->bookedSeats++;
+    printf("Reservation confirmed for %s on flight %d.\n", name, flightNumber);
+}
 int main() {
     Flight *head = NULL;
     int choice, flightNumber, capacity;
