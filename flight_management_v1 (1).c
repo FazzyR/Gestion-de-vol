@@ -30,6 +30,9 @@ void freeAll(Flight *head) {
     }
 }
 
+
+
+
 int main() {
     Flight *head = NULL;
     int choice, flightNumber, capacity;
