@@ -30,6 +30,8 @@ Flight *addFlight(Flight *head, int flightNumber, int capacity) {
     newFlight->flightNumber = flightNumber;
     newFlight->capacity = capacity;
     newFlight->bookedSeats = 0;
+    newFlight->reservations = NULL; 
+    newFlight->waitlist = NULL;     
     newFlight->next = head;
     return newFlight;  
 }
@@ -38,6 +40,19 @@ void freeAll(Flight *head) {
     while (head) {
         Flight *temp = head;
         head = head->next;
+      
+        Passenger *p = temp->reservations;
+        while (p) {
+            Passenger *tempP = p;
+            p = p->next;
+            free(tempP);
+        }
+        p = temp->waitlist;
+        while (p) {
+            Passenger *tempP = p;
+            p = p->next;
+            free(tempP);
+        }
         free(temp);
     }
 }
@@ -58,8 +73,28 @@ void addReservation(Flight *head, char *name, int flightNumber) {
         return;  
     }
 
+    
     if (flight->bookedSeats >= flight->capacity) {
-        printf("Flight %d is full. Cannot add %s.\n", flightNumber, name);
+    
+        Passenger *newPassenger = (Passenger *)malloc(sizeof(Passenger));
+        if (!newPassenger) {
+            printf("Memory allocation failed for new passenger.\n");
+            return;
+        }
+        strncpy(newPassenger->name, name, MAX_NAME_LENGTH - 1);
+        newPassenger->name[MAX_NAME_LENGTH - 1] = '\0';
+        newPassenger->next = NULL;
+
+        if (flight->waitlist == NULL) {
+            flight->waitlist = newPassenger;
+        } else {
+            Passenger *current = flight->waitlist;
+            while (current->next != NULL) {
+                current = current->next;
+            }
+            current->next = newPassenger;
+        }
+        printf("Flight %d is full. %s has been added to the waitlist.\n", flightNumber, name);
         return;
     }
 
@@ -94,6 +129,7 @@ void cancelReservation(Flight *head, char *name, int flightNumber) {
             flight->bookedSeats--;
             printf("Reservation for %s on flight %d canceled.\n", name, flightNumber);
             
+            
             if (flight->waitlist) {
                 Passenger *promoted = flight->waitlist;
                 flight->waitlist = promoted->next;
@@ -107,11 +143,19 @@ void cancelReservation(Flight *head, char *name, int flightNumber) {
         prev = curr;
         curr = curr->next;
     }
+    printf("Passenger %s not found on flight %d.\n", name, flightNumber);
 }
 void searchAvailableFlights(Flight *head) {
     printf("Available flights:\n");
     while (head) {
-        printf("Flight %d: %d/%d seats booked\n", head->flightNumber, head->bookedSeats, head->capacity);
+        int waitlistCount = 0;
+        Passenger *p = head->waitlist;
+        while (p) {
+            waitlistCount++;
+            p = p->next;
+        }
+        printf("Flight %d: %d/%d seats booked, %d on waitlist.\n", 
+               head->flightNumber, head->bookedSeats, head->capacity, waitlistCount);
         head = head->next;
     }
 }
@@ -119,6 +163,13 @@ void viewReservationHistory(Flight *head) {
     while (head) {
         printf("Flight %d:\n", head->flightNumber);
         printf("  Confirmed Reservations: %d/%d\n", head->bookedSeats, head->capacity);
+        int waitlistCount = 0;
+        Passenger *p = head->waitlist;
+        while (p) {
+            waitlistCount++;
+            p = p->next;
+        }
+        printf("  Waitlist: %d passengers\n", waitlistCount);
         head = head->next;
     }
 }
