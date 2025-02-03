@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 
 #define MAX_NAME_LENGTH 50
 
@@ -121,6 +122,11 @@ void viewReservationHistory(Flight *head) {
         head = head->next;
     }
 }
+
+int isValidName(char *name) {
+    return (name && strlen(name) > 0 && strlen(name) < MAX_NAME_LENGTH);
+}
+
 int main() {
     Flight *head = NULL;
     int choice, flightNumber, capacity;
