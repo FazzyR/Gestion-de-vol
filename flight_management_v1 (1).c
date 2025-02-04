@@ -239,9 +239,6 @@ int main() {
 
         switch (choice) {
             case 1:
-            // Using random or unverified input may lead to unexpected behavior.
-
-                printf("Please enter Valid Informations");
                 printf("Enter flight number: ");
                 scanf("%d", &flightNumber);
                 printf("Enter flight capacity: ");
