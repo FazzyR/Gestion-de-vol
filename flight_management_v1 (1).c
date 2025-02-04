@@ -25,34 +25,7 @@ typedef struct Flight {
     struct Flight *next;
 } Flight;
 
-Flight *addFlight(Flight *head, int flightNumber, int capacity, char *departure, char *destination, char *departureDate) {
-    Flight *newFlight = (Flight *)malloc(sizeof(Flight));
-    if (!newFlight) {
-        printf("Memory allocation failed for new flight.\n");
-        exit(1);
-    }
 
-    newFlight->flightNumber = flightNumber;
-    newFlight->capacity = capacity;
-    newFlight->bookedSeats = 0;
-    newFlight->reservations = NULL;
-    newFlight->waitlist = NULL;
-    newFlight->seats = (int *)calloc(capacity, sizeof(int));
-    if (!newFlight->seats) {
-        printf("Memory allocation failed for seats.\n");
-        free(newFlight);
-        exit(1);
-    }
-    strncpy(newFlight->departure, departure, MAX_LOCATION_LENGTH - 1);
-    newFlight->departure[MAX_LOCATION_LENGTH - 1] = '\0';
-    strncpy(newFlight->destination, destination, MAX_LOCATION_LENGTH - 1);
-    newFlight->destination[MAX_LOCATION_LENGTH - 1] = '\0';
-    strncpy(newFlight->departureDate, departureDate, MAX_DATE_LENGTH - 1);
-    newFlight->departureDate[MAX_DATE_LENGTH - 1] = '\0';
-
-    newFlight->next = head;
-    return newFlight;
-}
 
 void freeAll(Flight *head) {
     while (head) {
@@ -85,6 +58,41 @@ Flight *findFlight(Flight *head, int flightNumber) {
     }
     return NULL;
 }
+
+Flight *addFlight(Flight *head, int flightNumber, int capacity, char *departure, char *destination, char *departureDate) {
+    Flight *newFlight = (Flight *)malloc(sizeof(Flight));
+    Flight *flightExist=findFlight(head,flightNumber);
+    if(flightExist){
+        printf("flight with number %d",flightNumber);
+        exit(1);
+    }
+    if (!newFlight) {
+        printf("Memory allocation failed for new flight.\n");
+        exit(1);
+    }
+
+    newFlight->flightNumber = flightNumber;
+    newFlight->capacity = capacity;
+    newFlight->bookedSeats = 0;
+    newFlight->reservations = NULL;
+    newFlight->waitlist = NULL;
+    newFlight->seats = (int *)calloc(capacity, sizeof(int));
+    if (!newFlight->seats) {
+        printf("Memory allocation failed for seats.\n");
+        free(newFlight);
+        exit(1);
+    }
+    strncpy(newFlight->departure, departure, MAX_LOCATION_LENGTH - 1);
+    newFlight->departure[MAX_LOCATION_LENGTH - 1] = '\0';
+    strncpy(newFlight->destination, destination, MAX_LOCATION_LENGTH - 1);
+    newFlight->destination[MAX_LOCATION_LENGTH - 1] = '\0';
+    strncpy(newFlight->departureDate, departureDate, MAX_DATE_LENGTH - 1);
+    newFlight->departureDate[MAX_DATE_LENGTH - 1] = '\0';
+
+    newFlight->next = head;
+    return newFlight;
+}
+
 
 void addReservation(Flight *head, char *name, int flightNumber, int seatNumber) {
     Flight *flight = findFlight(head, flightNumber);
