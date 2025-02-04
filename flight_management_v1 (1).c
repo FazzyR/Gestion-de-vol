@@ -239,6 +239,8 @@ int main() {
 
         switch (choice) {
             case 1:
+                printf("Please enter valid informations  ");
+
                 printf("Enter flight number: ");
                 scanf("%d", &flightNumber);
                 printf("Enter flight capacity: ");
@@ -264,6 +266,7 @@ int main() {
                 break;
 
             case 2:
+                printf("Please enter valid informations  ");
                 printf("Enter flight number: ");
                 scanf("%d", &flightNumber);
                 getchar();
@@ -283,6 +286,8 @@ int main() {
                 break;
 
             case 3:
+                printf("Please enter valid informations  ");
+
                 printf("Enter flight number: ");
                 scanf("%d", &flightNumber);
                 getchar();
